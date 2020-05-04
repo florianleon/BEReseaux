@@ -2,6 +2,8 @@
 #include "../include/api/mictcp_core.h"
 
 mic_tcp_sock_addr sock_return;
+int PE = 0;
+int PA = 0;
 
 /*
  * Permet de créer un socket entre l’application et MIC-TCP
@@ -60,14 +62,26 @@ int mic_tcp_send (int mic_sock, char* mesg, int mesg_size)
     pdu.payload.size = mesg_size;
     pdu.header.source_port = 0;
     pdu.header.dest_port = 0;
-    pdu.header.seq_num = 0;
+    pdu.header.seq_num = PE;
     pdu.header.ack_num = 0;
     pdu.header.syn = 0;
     pdu.header.ack = 0;
     pdu.header.fin = 0;
+    app_buffer_put(pdu.payload);
+    
     mic_tcp_sock_addr a  = sock_return;
-    IP_send(pdu, a);
-    return mesg_size;
+    int send_size = IP_send(pdu, a);
+
+    mic_tcp_pdu ack_recv;
+    ack_recv.payload.data = NULL;
+    ack_recv.payload.size = 0;
+    mic_tcp_sock_addr addr_recv;
+    unsigned long timer = 250;
+    while (IP_recv(&ack_recv, &addr_recv, timer) == -1){
+        IP_send(pdu, a);
+    }
+    PE = (PE + 1) % 2;
+    return send_size;
 }
 
 /*
@@ -107,4 +121,6 @@ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr)
 {
     printf("[MIC-TCP] Appel de la fonction: "); printf(__FUNCTION__); printf("\n");
     app_buffer_put(pdu.payload);
+    mic_tcp_pdu ack;
+    IP_send(ack);
 }
