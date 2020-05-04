@@ -1,5 +1,5 @@
-#include <mictcp.h>
-#include <api/mictcp_core.h>
+#include "../include/mictcp.h"
+#include "../include/api/mictcp_core.h"
 
 mic_tcp_sock_addr sock_return;
 
@@ -24,7 +24,7 @@ int mic_tcp_socket(start_mode sm)
 int mic_tcp_bind(int socket, mic_tcp_sock_addr addr)
 {
    printf("[MIC-TCP] Appel de la fonction: ");  printf(__FUNCTION__); printf("\n");
-   return -1;
+   return socket;
 }
 
 /*
@@ -34,7 +34,7 @@ int mic_tcp_bind(int socket, mic_tcp_sock_addr addr)
 int mic_tcp_accept(int socket, mic_tcp_sock_addr* addr)
 {
     printf("[MIC-TCP] Appel de la fonction: ");  printf(__FUNCTION__); printf("\n");
-    return -1;
+    return socket;
 }
 
 /*
@@ -45,7 +45,7 @@ int mic_tcp_connect(int socket, mic_tcp_sock_addr addr)
 {
     printf("[MIC-TCP] Appel de la fonction: ");  printf(__FUNCTION__); printf("\n");
     sock_return = addr;
-    return -1;
+    return socket;
 }
 
 /*
@@ -55,7 +55,7 @@ int mic_tcp_connect(int socket, mic_tcp_sock_addr addr)
 int mic_tcp_send (int mic_sock, char* mesg, int mesg_size)
 {
     printf("[MIC-TCP] Appel de la fonction: "); printf(__FUNCTION__); printf("\n");
-    int mic_tcp_pdu pdu;
+    mic_tcp_pdu pdu;
     pdu.payload.data = mesg;
     pdu.payload.size = mesg_size;
     pdu.header.source_port = 0;
@@ -94,7 +94,7 @@ int mic_tcp_recv (int socket, char* mesg, int max_mesg_size)
 int mic_tcp_close (int socket)
 {
     printf("[MIC-TCP] Appel de la fonction :  "); printf(__FUNCTION__); printf("\n");
-    return -1;
+    return socket;
 }
 
 /*
