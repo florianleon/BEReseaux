@@ -128,11 +128,11 @@ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr)
     if (pdu.header.seq_num == PA) {
         app_buffer_put(pdu.payload);
         IP_send(ack, addr);
-        printf("ACK sent\n");
+        //printf("ACK sent\n");
         PA = (PA + 1) % 2;
     } else {
         IP_send(ack, addr);
-        printf("ACK sent\n");
+        //printf("ACK sent\n");
     }
     
 
