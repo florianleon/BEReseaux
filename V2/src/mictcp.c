@@ -2,9 +2,9 @@
 #include "../include/api/mictcp_core.h"
 
 mic_tcp_sock_addr sock_return;
-int PE = 0;
-int PA = 0;
-
+static int PE = 0;
+static int PA = 0;
+//(1024 + rand() ) % (65536-1024)
 /*
  * Permet de créer un socket entre l’application et MIC-TCP
  * Retourne le descripteur du socket ou bien -1 en cas d'erreur
@@ -14,7 +14,7 @@ int mic_tcp_socket(start_mode sm)
    int result = -1;
    printf("[MIC-TCP] Appel de la fonction: ");  printf(__FUNCTION__); printf("\n");
    result = initialize_components(sm); /* Appel obligatoire */
-   set_loss_rate(0);
+   set_loss_rate(5);
 
    return result;
 }
@@ -67,7 +67,7 @@ int mic_tcp_send (int mic_sock, char* mesg, int mesg_size)
     pdu.header.syn = 0;
     pdu.header.ack = 0;
     pdu.header.fin = 0;
-    app_buffer_put(pdu.payload);
+    //app_buffer_put(pdu.payload);
     
     mic_tcp_sock_addr a  = sock_return;
     int send_size = IP_send(pdu, a);
@@ -76,9 +76,9 @@ int mic_tcp_send (int mic_sock, char* mesg, int mesg_size)
     ack_recv.payload.data = NULL;
     ack_recv.payload.size = 0;
     mic_tcp_sock_addr addr_recv;
-    unsigned long timer = 250;
-    while (IP_recv(&ack_recv, &addr_recv, timer) == -1){
-        IP_send(pdu, a);
+    unsigned long timer = 5; //10 * RTT
+    while ((IP_recv(&ack_recv, &addr_recv, timer)) == -1 || (ack_recv.header.ack != 1)) {
+        send_size = IP_send(pdu, a);
     }
     PE = (PE + 1) % 2;
     return send_size;
@@ -120,7 +120,20 @@ int mic_tcp_close (int socket)
 void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr)
 {
     printf("[MIC-TCP] Appel de la fonction: "); printf(__FUNCTION__); printf("\n");
-    app_buffer_put(pdu.payload);
     mic_tcp_pdu ack;
-    IP_send(ack);
+    ack.payload.data = NULL;
+    ack.payload.size = 0;
+    ack.header.ack = 1;
+
+    if (pdu.header.seq_num == PA) {
+        app_buffer_put(pdu.payload);
+        IP_send(ack, addr);
+        printf("ACK sent\n");
+        PA = (PA + 1) % 2;
+    } else {
+        IP_send(ack, addr);
+        printf("ACK sent\n");
+    }
+    
+
 }
