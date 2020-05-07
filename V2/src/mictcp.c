@@ -77,7 +77,7 @@ int mic_tcp_send (int mic_sock, char* mesg, int mesg_size)
     ack_recv.payload.size = 0;
     mic_tcp_sock_addr addr_recv;
     unsigned long timer = 5; //10 * RTT
-    while ((IP_recv(&ack_recv, &addr_recv, timer)) == -1 || (ack_recv.header.ack != 1)) {
+    while ((IP_recv(&ack_recv, &addr_recv, timer)) == -1 || (ack_recv.header.ack_num != PE)) {
         send_size = IP_send(pdu, a);
     }
     PE = (PE + 1) % 2;
@@ -124,16 +124,19 @@ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr)
     ack.payload.data = NULL;
     ack.payload.size = 0;
     ack.header.ack = 1;
-
+    
     if (pdu.header.seq_num == PA) {
         app_buffer_put(pdu.payload);
+        ack.header.ack_num == PA;
         IP_send(ack, addr);
         //printf("ACK sent\n");
         PA = (PA + 1) % 2;
     } else {
+        ack.header.ack_num == PA;
         IP_send(ack, addr);
         //printf("ACK sent\n");
     }
     
 
 }
+ 
