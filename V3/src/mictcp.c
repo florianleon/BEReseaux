@@ -1,11 +1,17 @@
 #include "../include/mictcp.h"
 #include "../include/api/mictcp_core.h"
+#define FENETRE 10 // a choisir le plus petit possible
+#define NBRPERTES 2 //soit 20%
+/**
+ * comme la perte admissible est grande donc on peut se permettre de prendre une fenetre plus petite, 
+ * parce que si on avait pris une fenetre de 100 et un taux de perte de 20 la qualité serait beaucoup impactée je pense
+*/
 
 mic_tcp_sock_addr sock_return;
 static int PE = 0;
 static int PA = 0;
-static ad_loss = 20; //Pertes admissibles en %
-static loss;
+static int loss = 0; //taux effectif de pertes
+static int package = 0; //0 si le paquet est pas perdu, 1 sinon
 //(1024 + rand() ) % (65536-1024)
 /*
  * Permet de créer un socket entre l’application et MIC-TCP
@@ -16,7 +22,7 @@ int mic_tcp_socket(start_mode sm)
    int result = -1;
    printf("[MIC-TCP] Appel de la fonction: ");  printf(__FUNCTION__); printf("\n");
    result = initialize_components(sm); /* Appel obligatoire */
-   set_loss_rate(5);
+   set_loss_rate(10);
 
    return result;
 }
@@ -80,7 +86,17 @@ int mic_tcp_send (int mic_sock, char* mesg, int mesg_size)
     mic_tcp_sock_addr addr_recv;
     unsigned long timer = 5; //10 * RTT
     while ((IP_recv(&ack_recv, &addr_recv, timer)) == -1 || (ack_recv.header.ack_num == PE)) {
-        send_size = IP_send(pdu, a);
+        if (loss < NBRPERTES) {
+    		loss++;
+    		break;
+    	} else {
+    		send_size = IP_send(pdu, a);
+    	} 
+    }
+    package = (package + 1) % FENETRE;
+
+    if (package == 0){
+    	loss = 0;
     }
     PE = (PE + 1) % 2;
     return send_size;
@@ -132,14 +148,10 @@ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr)
         PA = (PA + 1) % 2;
         ack.header.ack_num = PA;
         IP_send(ack, addr);
-        //printf("ACK sent\n");
         
     } else {
         ack.header.ack_num = PA;
         IP_send(ack, addr);
-        //printf("ACK sent\n");
     }
-    
-
 }
  

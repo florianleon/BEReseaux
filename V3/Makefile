@@ -62,4 +62,4 @@ dist:
 	@tar --exclude=build --exclude=*tar.gz --exclude=.git* -czvf mictcp-bundle.tar.gz ../mictcp
 
 prof:
-	@tar --exclude=build --exclude=.*tar.gz --exclude=video -czvf $(TAR_FILENAME) ../mictcp
+	@tar --exclude=build --exclude=.*tar.gz --exclude=video -czvf $(TAR_FILENAME) ../V3
