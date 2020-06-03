@@ -18,7 +18,7 @@ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr);
  Ici comme il n'y a aucune garantie de fiabilité, c'est un peu comme si on avait un codé un **UDP** bis. 
  
  ### Version 2 : 
- Dans cette version, on introduit une fiabilité totale, tous les paquets perdus sont retransmis.
+ Dans cette version, on introduit une fiabilité totale, tous les paquets perdus sont retransmis. C'est la vraie version de **TCP***.
  
  On rajoute alors : 
  ```c
