@@ -1,0 +1,2 @@
+Si vous voulez avoir une vue d'ensemble de BE je vous mets le lien pour accéder via mon GitHub : https://github.com/florianleon/BEReseaux 
+Je vous encourage vivement à visiter mon git plutôt que moodle car je pense rajouter un readme global qui ne sera probablement pas sur moodle. 
