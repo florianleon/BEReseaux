@@ -3,10 +3,12 @@ LEON Florian
 3 MIC E2
  ---
 Je ferais souvent référence au pdf contenant les machines à états des différentes fonctions décrites en TD
+
 A consulter [ici](./MAE_BE_Reseaux.pdf)
 
  ### Version 1 :
 Cette première version consistait à coder une phase de transfert de données sans aucune garantie de fiabilité.
+
 Il s'agit essentiellement de reprendre les machines à états vu en TD et de coder les fonctions :
 ```c
 int mic_tcp_send(int mic_sock, char* mesg, int mesg_size);
@@ -17,6 +19,7 @@ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr);
  
  ### Version 2 : 
  Dans cette version, on introduit une fiabilité totale, tous les paquets perdus sont retransmis.
+ 
  On rajoute alors : 
  ```c
  // PE pour Prochaine trame à émettre
@@ -25,12 +28,14 @@ static int PE = 0;
 static int PA = 0;
 ```
 La synchronisation de ces 2 variables qu'on initialise alors dans le *header du pdu* nous permet alors de garantir une fiabilité totale. 
+
 Le plus "gros" du traitement à lieu dans la fonction **process_received_PDU** où on rajoute la gestion de PA.
 
 > ***NB :*** la fonction **mic_tcp_recv** n'est pas modifié d'une version à l'autre
 
 ### Version 3
 Dans cette version, on rajoute la gestion d'une fiabilité partielle. Ainsi, on ne va plus retransmettre tous les paquets non arrivés à destination mais seulement un petit pourcentage. 
+
 Pour cela, on utilise une fenêtre glissante : 
 ```c
 #define FENETRE 10 
@@ -43,6 +48,7 @@ La taille de la fenêtre est à chosir la plus petite possible. Comme la perte a
  
  ### Version 3 bis
  Cette version est la même que la précedente mais j'ai rajouté l'établissement de la phase de connexion. 
+ 
  J'ai donc modifié les fonctions suivantes en suivant ce qui était décrit sur la page du BE de moodle: 
  ```c 
  int mic_tcp_accept(int socket, mic_tcp_sock_addr* addr);
