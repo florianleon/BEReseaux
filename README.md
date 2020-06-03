@@ -2,17 +2,17 @@
 LEON Florian
 3 MIC E2
  ---
- Je ferais souvent référence au pdf contenant les machines à états des différentes fonctions décrites en TD
+Je ferais souvent référence au pdf contenant les machines à états des différentes fonctions décrites en TD
 A consulter [ici](./MAE_BE_Reseaux.pdf)
 
  ### Version 1 :
- Cette première version consistait à coder une phase de transfert de données sans aucune garantie de fiabilité.
- Il s'agit essentiellement de reprendre les machines à états vu en TD et de coder les fonctions :
- ```c
- int mic_tcp_send(int mic_sock, char* mesg, int mesg_size)
- int mic_tcp_recv(int socket, char* mesg, int max_mesg_size)
- void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr)
- ```
+Cette première version consistait à coder une phase de transfert de données sans aucune garantie de fiabilité.
+Il s'agit essentiellement de reprendre les machines à états vu en TD et de coder les fonctions :
+```c
+int mic_tcp_send(int mic_sock, char* mesg, int mesg_size);
+int mic_tcp_recv(int socket, char* mesg, int max_mesg_size);
+void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr);
+```
  Ici comme il n'y a aucune garantie de fiabilité, c'est un peu comme si on avait un codé un **UDP** bis. 
  
  ### Version 2 : 
@@ -45,8 +45,8 @@ La taille de la fenêtre est à chosir la plus petite possible. Comme la perte a
  Cette version est la même que la précedente mais j'ai rajouté l'établissement de la phase de connexion. 
  J'ai donc modifié les fonctions suivantes en suivant ce qui était décrit sur la page du BE de moodle: 
  ```c 
- int mic_tcp_accept(int socket, mic_tcp_sock_addr* addr)
- int mic_tcp_connect(int socket, mic_tcp_sock_addr addr)
+ int mic_tcp_accept(int socket, mic_tcp_sock_addr* addr);
+ int mic_tcp_connect(int socket, mic_tcp_sock_addr addr);
  ```
  J'ai eu le temps de réaliser les tests en texte uniquement, même si je ne vois pas pourquoi elle ne marcherait pas en video.
  Cependant, je ne sais pas si c'est correct car ça reste une simple ébauche. Il y a beaucoup d'amélioration possible mais j'avais voulu tenter le coup et voir ce que je pouvais faire dessus. 
@@ -63,3 +63,4 @@ killall -9 gateway > /dev/null 2>&1
  
   > ***NB2 :*** Dans mes fichiers pour la V2 et V3, j'ai gardé un **set_loss_rate(10)**, il serait préférable de réaliser les tests avec un **set_loss_rate(5)**. Un taux de pertes de 10 est un peu trop élévé je pense. 
  
+ > ***NB3 :*** Dans les fichiers tests, il faudrait mettre en commentaire les *printf()* car ça ralentit énormément la lecture de la video. C'est pratique pour le déboggage mais c'est tout. 
