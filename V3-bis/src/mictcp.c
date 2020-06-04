@@ -65,20 +65,26 @@ int mic_tcp_accept(int socket, mic_tcp_sock_addr* addr)
 
     mic_tcp_sock_addr addr_recv;
     unsigned long timer = 5; //10 * RTT
-    //On envoit l'acquitement 
-    IP_send(syn_ack, *addr);
     //la fonction doit se bloquer en attendant la reception du SYN
     while (1) {
         //si on recoit une demande de connexion on envoie un acquitement 
         if (IP_recv(&syn_recv, &addr_recv, timer) != -1) {
             if(syn_recv.header.syn == 1) {
                 //on a reçu le bon acquittement
-                IP_send(syn_ack, *addr);
+                //IP_send(syn_ack, addr_recv); //je pense que addr_recv == *addr
                 break;
             } else {
                 continue;
             }
         }
+    }
+    IP_send(syn_ack, addr_recv);
+    mic_tcp_pdu syn_ack_ack;
+    syn_ack_ack.payload.data = NULL;
+    syn_ack_ack.payload.size = 0;
+    syn_ack_ack.header.ack = 0;
+    while ((IP_recv(&syn_ack_ack, &addr_recv, timer) == -1) || (syn_ack_ack.header.ack == 0)) {
+        IP_send(syn_ack, addr_recv);
     }
     
     return socket;
@@ -96,6 +102,7 @@ int mic_tcp_connect(int socket, mic_tcp_sock_addr addr)
     syn.payload.data = NULL;
     syn.payload.size = 0;
     syn.header.syn = 1;
+    syn.header.seq_num = PE;
     IP_send(syn, addr);
     //mise en attente d'un syn_ack
     mic_tcp_pdu syn_ack_recv;
@@ -113,17 +120,24 @@ int mic_tcp_connect(int socket, mic_tcp_sock_addr addr)
             if(syn_ack_recv.header.syn == 1 && syn_ack_recv.header.ack == 1) {
                 //on a reçu le bon acquittement
                 break;
-            } else {
-                continue;
-            }
+            } //else {
+                //IP_send(syn, addr);
+                //continue;
+            //}
         }
         nb++;
         if (nb > 3) { //nombre purement arbitraire
-            //sleep(1); //pour empecher qu'on envoie trop de paquets avant qu'on ouvre la connection coté puits
+            sleep(1); //laisser le temps à la synchro de se faire
             IP_send(syn, addr);
             nb = 0;
         }
     }
+
+    mic_tcp_pdu syn_ack;
+    syn_ack.payload.data = NULL;
+    syn_ack.payload.size = 0;
+    syn_ack.header.ack = 1;
+    IP_send(syn_ack, addr);
 
     return socket;
 }
@@ -216,10 +230,14 @@ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr)
     
     
     if (pdu.header.seq_num == PA) {
-        app_buffer_put(pdu.payload);
-        PA = (PA + 1) % 2;
-        ack.header.ack_num = PA;
-        IP_send(ack, addr);
+        if (pdu.header.syn == 1) {
+            printf("Syn reçu\n");
+        } else {
+            app_buffer_put(pdu.payload);
+            PA = (PA + 1) % 2;
+            ack.header.ack_num = PA;
+            IP_send(ack, addr);
+        }
         
     } else {
         ack.header.ack_num = PA;
