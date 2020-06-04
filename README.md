@@ -53,9 +53,14 @@ La taille de la fenêtre est à chosir la plus petite possible. Comme la perte a
  ```c 
  int mic_tcp_accept(int socket, mic_tcp_sock_addr* addr);
  int mic_tcp_connect(int socket, mic_tcp_sock_addr addr);
+ void process_received_PDU(mic_tcp_pdu pdu, mic_tcp_sock_addr addr);
  ```
- J'ai eu le temps de réaliser les tests en texte uniquement, même si je ne vois pas pourquoi elle ne marcherait pas en video.
- Cependant, je ne sais pas si c'est correct car ça reste une simple ébauche. Il y a beaucoup d'amélioration possible mais j'avais voulu tenter le coup et voir ce que je pouvais faire dessus. 
+
+ J'ai pu réaliser mes tests côté texte, tout à l'air de marcher correctement. En tout cas le comportement est plutôt cohérent de ce que j'ai pu voir. 
+ 
+ Cependant, côté video la synchronisation à l'air de fonctionner également mais la video ne se lance plus. Pour l'instant je ne pas réglé le problème. Si je trouve une solution, je modifierais mes fichiers sur moodle. 
+ 
+ Je ne sais pas si c'est correct car ça reste une simple ébauche. Il y a beaucoup d'amélioration possible mais j'avais voulu tenter le coup et voir ce que je pouvais faire dessus.
  
  ---
  > ***NB1 :*** Si la video ne se lance pas sur votre ordinateur c'est peut être normal car j'ai travaillé sur mac et j'ai du adapter l'exécutable **tsock_video**. Il suffira normalement de décommenter les 2 premières lignes et de commenter les 2 dernières. 
